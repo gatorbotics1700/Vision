@@ -1,6 +1,7 @@
 package com.example.katiemishra.visionapp;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -11,68 +12,54 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ImageView;
 import android.widget.VideoView;
 
+import org.opencv.android.Utils;
+import org.opencv.core.Mat;
+
+import java.io.IOException;
+
 public class MainActivity extends AppCompatActivity {
-
-    VideoView vv;
-
+    ​
+    ImageView iv;
+    ​
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.content_main);
-
-        vv = (VideoView) findViewById(R.id.myVideoView);
-
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
-        /*FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });*/
+        ​
+        iv = (ImageView) findViewById(R.id.myImageView);
+        ​
+        Intent intent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+        startActivityForResult(intent, 0);
+        Mat m = new Mat();
     }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
+    ​
     static final int REQUEST_VIDEO_CAPTURE = 1;
-
-    private void dispatchTakeVideoIntent() {
-        Intent takeVideoIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
-        if (takeVideoIntent.resolveActivity(getPackageManager()) != null) {
-            startActivityForResult(takeVideoIntent, REQUEST_VIDEO_CAPTURE);
-        }
-    }
-
+    ​
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Bitmap bmp;
+        Mat m = new Mat();
+        super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_VIDEO_CAPTURE && resultCode == RESULT_OK) {
-            Uri videoUri = data.getData();
-            vv.setVideoURI(videoUri);
+            Uri imageUri = data.getData();
+            ​
+            // convert uri to mat
+            try {
+                bmp = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
+                Utils.bitmapToMat(bmp, m);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            // processing goes here
+            ​
+            // mat to bitmap
+            Bitmap bm = Bitmap.createBitmap(m.cols(), m.rows(),Bitmap.Config.ARGB_8888);
+            Utils.matToBitmap(m, bm);
+            ​
+            iv.setImageBitmap(bm);
         }
     }
 }

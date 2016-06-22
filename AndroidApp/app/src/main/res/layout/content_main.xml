@@ -11,11 +11,11 @@
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="com.example.katiemishra.visionapp.MainActivity"
     tools:showIn="@layout/app_bar_main">
-
-    <VideoView android:id="@+id/myVideoView"
+    ​
+    <ImageView android:id="@+id/myImageView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         />
-
+    ​
 </RelativeLayout>
